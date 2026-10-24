@@ -1,4 +1,3 @@
-const { WebcastPushConnection } = require('tiktok-live-connector');
 const logger = require('./logger');
 
 let tiktokLiveConnection = null;
@@ -10,32 +9,40 @@ function broadcast(wss, type, data) {
   });
 }
 
-function connect(username, wss) {
+async function connect(username, wss) {
   if (tiktokLiveConnection) disconnect(wss);
   logger.log(`Conectando a @${username}`);
   broadcast(wss, 'status', 'connecting');
 
-  tiktokLiveConnection = new WebcastPushConnection(username);
+  try {
+    // Importación dinámica compatible con módulos ESM en Node.js
+    const { WebcastPushConnection } = await import('tiktok-live-connector');
+    
+    tiktokLiveConnection = new WebcastPushConnection(username);
 
-  tiktokLiveConnection.connect().then(state => {
-    logger.log(`Conectado a Live ID: ${state.roomId}`);
-    broadcast(wss, 'status', 'connected');
-  }).catch(err => {
-    logger.error('Error de conexión', err);
-    broadcast(wss, 'status', 'disconnected');
-    scheduleReconnect(username, wss);
-  });
+    tiktokLiveConnection.connect().then(state => {
+      logger.log(`Conectado a Live ID: ${state.roomId}`);
+      broadcast(wss, 'status', 'connected');
+    }).catch(err => {
+      logger.error('Error de conexión', err);
+      broadcast(wss, 'status', 'disconnected');
+      scheduleReconnect(username, wss);
+    });
 
-  tiktokLiveConnection.on('chat', data => broadcast(wss, 'chat', data));
-  tiktokLiveConnection.on('gift', data => broadcast(wss, 'gift', data));
-  tiktokLiveConnection.on('member', data => broadcast(wss, 'member', data));
-  tiktokLiveConnection.on('like', data => broadcast(wss, 'like', data));
-  tiktokLiveConnection.on('social', data => broadcast(wss, 'share', data));
-  
-  tiktokLiveConnection.on('disconnected', () => {
+    tiktokLiveConnection.on('chat', data => broadcast(wss, 'chat', data));
+    tiktokLiveConnection.on('gift', data => broadcast(wss, 'gift', data));
+    tiktokLiveConnection.on('member', data => broadcast(wss, 'member', data));
+    tiktokLiveConnection.on('like', data => broadcast(wss, 'like', data));
+    tiktokLiveConnection.on('social', data => broadcast(wss, 'share', data));
+    
+    tiktokLiveConnection.on('disconnected', () => {
+      broadcast(wss, 'status', 'disconnected');
+      scheduleReconnect(username, wss);
+    });
+  } catch (err) {
+    logger.error('Error al cargar tiktok-live-connector', err);
     broadcast(wss, 'status', 'disconnected');
-    scheduleReconnect(username, wss);
-  });
+  }
 }
 
 function scheduleReconnect(username, wss) {
@@ -53,4 +60,3 @@ function disconnect(wss) {
 }
 
 module.exports = { connect, disconnect };
-
