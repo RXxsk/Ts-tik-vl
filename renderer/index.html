@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="css/styles.css">
+  <title>TikTok TTS Live</title>
+</head>
+<body>
+  <header>
+    <div class="title">TikTok<span>TTS Live</span></div>
+    <div class="header-actions">
+      <button class="icon-btn" id="btn-theme">🌓</button>
+      <button class="icon-btn" onclick="window.electronAPI.openLogs()">🗂</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- TAB CHAT -->
+    <div id="tab-chat" class="tab-content active">
+      <div class="pro-card">
+        <div class="pro-card-header">
+          <div class="pro-label">Conexión</div>
+          <div class="pro-pill" id="status-badge">Offline</div>
+        </div>
+        <input type="text" id="username" class="pro-input" placeholder="@usuario_de_tiktok">
+        <button id="btn-connect" class="pro-btn-primary">Conectar al LIVE</button>
+      </div>
+      <div class="pro-card">
+        <div class="pro-card-header"><div class="pro-label">Eventos a leer</div></div>
+        <div class="toggle-row"><span>Comentarios</span><input type="checkbox" class="toggle-switch" id="ev-chat" checked></div>
+        <div class="toggle-row"><span>Regalos (Donaciones)</span><input type="checkbox" class="toggle-switch" id="ev-gift" checked></div>
+        <div class="toggle-row"><span>Nuevos Seguidores</span><input type="checkbox" class="toggle-switch" id="ev-member"></div>
+        <div class="toggle-row"><span>Likes</span><input type="checkbox" class="toggle-switch" id="ev-like"></div>
+      </div>
+    </div>
+
+    <!-- TAB COLA & REGISTRO -->
+    <div id="tab-queue" class="tab-content">
+      <div class="pro-card" style="grid-column: 1 / -1;">
+        <div class="pro-card-header">
+          <div class="pro-label">Control de Cola</div>
+          <div class="pro-pill"><span id="queue-count">0</span> msjs</div>
+        </div>
+        <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+          <button id="btn-skip" class="pro-btn-primary">Saltar Actual</button>
+          <button id="btn-clear" class="pro-btn-primary" style="background: #ef4444; color: white;">Vaciar Cola</button>
+        </div>
+        <div class="log-list" id="queue-log"></div>
+      </div>
+    </div>
+
+    <!-- TAB VOZ -->
+    <div id="tab-voice" class="tab-content">
+      <div class="pro-card">
+        <div class="pro-card-header"><div class="pro-label">Ajustes de Voz</div></div>
+        <select id="tts-engine" class="pro-select">
+          <option value="web">Web Speech API (Sistema)</option>
+          <option value="kokoro">Kokoro-82M (WASM Local)</option>
+        </select>
+        <select id="tts-voice" class="pro-select"></select>
+        <label style="font-size: 0.8rem; color: var(--text-muted);">Velocidad</label>
+        <input type="range" id="tts-rate" min="0.5" max="2" step="0.1" value="1" style="width: 100%; margin-bottom: 1rem;">
+        <button id="btn-test-voice" class="pro-btn-primary">Probar Voz</button>
+      </div>
+      <div class="pro-card">
+        <div class="pro-card-header"><div class="pro-label">Plantillas</div></div>
+        <label style="font-size: 0.8rem;">Donaciones: {usuario}, {cantidad}, {regalo}</label>
+        <input type="text" id="tpl-gift" class="pro-input" value="{usuario} ha enviado {cantidad} {regalo}">
+      </div>
+    </div>
+
+    <!-- TAB FILTROS -->
+    <div id="tab-filters" class="tab-content">
+      <div class="pro-card" style="grid-column: 1 / -1;">
+        <div class="pro-card-header"><div class="pro-label">Seguridad y Spam</div></div>
+        <div class="toggle-row"><span>Ignorar Comandos (! o /)</span><input type="checkbox" class="toggle-switch" id="fl-cmds" checked></div>
+        <div class="toggle-row"><span>Ignorar Links</span><input type="checkbox" class="toggle-switch" id="fl-links" checked></div>
+        <textarea id="fl-badwords" class="pro-input" placeholder="Palabras prohibidas (separadas por coma)"></textarea>
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-tab active" data-target="tab-chat">Chat</button>
+    <button class="nav-tab" data-target="tab-queue">Cola</button>
+    <button class="nav-tab" data-target="tab-voice">Voz</button>
+    <button class="nav-tab" data-target="tab-filters">Filtros</button>
+  </nav>
+
+  <div id="toast">Guardado</div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

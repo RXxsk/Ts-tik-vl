@@ -1,0 +1,47 @@
+@echo off
+chcp 65001 >nul
+title Instalador TTS TikTok Live
+
+echo Comprobando Node.js...
+node -v >nul 2>&1
+IF %ERRORLEVEL% NEQ 0 (
+    echo Node.js no esta instalado. Instalando via winget...
+    winget install OpenJS.NodeJS.LTS
+    echo ========================================================
+    echo INSTALACION DE NODE.JS COMPLETADA.
+    echo POR FAVOR, CIERRA ESTA VENTANA Y VUELVE A ABRIR ESTE .BAT
+    echo ========================================================
+    pause
+    exit
+)
+
+IF NOT EXIST "package.json" (
+    echo ERROR: package.json no encontrado. Ejecuta este .bat en la raiz del proyecto.
+    pause
+    exit
+)
+
+echo.
+echo =================================================
+echo Instalando dependencias de Produccion...
+echo =================================================
+call npm install express ws
+call npm install tiktok-live-connector@1.3.1
+
+echo.
+echo =================================================
+echo Instalando dependencias de Desarrollo (Electron)...
+echo =================================================
+call npm install --save-dev --save-exact electron@22.3.27
+call npm install --save-dev electron-builder sharp png-to-ico
+
+echo.
+echo =================================================
+echo Descargando Fuentes locales (Inter y JetBrains)...
+echo =================================================
+if not exist "renderer\fonts" mkdir renderer\fonts
+powershell -Command "Invoke-WebRequest -Uri 'https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfMZhrib2Bg-4.ttf' -OutFile 'renderer\fonts\Inter.ttf'"
+
+echo.
+echo TODO LISTO. Puedes iniciar con: npm start
+pause
