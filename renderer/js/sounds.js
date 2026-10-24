@@ -1,0 +1,1 @@
+window.Sounds = { ping() { try { const C = window.AudioContext || window.webkitAudioContext; if (!C) return; const c = new C(); const o = c.createOscillator(); const g = c.createGain(); o.frequency.value = 740; g.gain.value = .035; o.connect(g); g.connect(c.destination); o.start(); o.stop(c.currentTime + .07); o.onended = () => c.close(); } catch {} } };

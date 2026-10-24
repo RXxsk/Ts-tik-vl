@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="es" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="css/styles.css">
+  <title>TikTok TTS Live</title>
+</head>
+<body>
+  <header>
+    <div class="title">TikTok<span>TTS Live Studio</span></div>
+    <div class="header-actions">
+      <!-- Botón de Tema con SVG -->
+      <button class="icon-btn" id="btn-theme" title="Cambiar Tema">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+        </svg>
+      </button>
+      <!-- Botón de Logs con SVG -->
+      <button class="icon-btn" onclick="window.electronAPI.openLogs()" title="Abrir Registros">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"></path>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- TAB CHAT -->
+    <div id="tab-chat" class="tab-content active">
+      <div class="pro-card">
+        <div class="pro-card-header">
+          <div class="pro-label">Conexión de Stream</div>
+          <div class="pro-pill" id="status-badge">Offline</div>
+        </div>
+        <input type="text" id="username" class="pro-input" placeholder="@usuario_de_tiktok">
+        <button id="btn-connect" class="pro-btn-primary" style="margin-bottom: 0.75rem;">Conectar al LIVE</button>
+        <button id="btn-simulate" class="pro-btn-primary" style="background: rgba(59, 130, 246, 0.15); color: var(--primary); border: 1px solid var(--primary);">Simular Evento de Prueba</button>
+      </div>
+      <div class="pro-card">
+        <div class="pro-card-header"><div class="pro-label">Eventos Activos</div></div>
+        <div class="toggle-row"><span>Comentarios de Chat</span><input type="checkbox" class="toggle-switch" id="ev-chat" checked></div>
+        <div class="toggle-row"><span>Regalos y Donaciones</span><input type="checkbox" class="toggle-switch" id="ev-gift" checked></div>
+        <div class="toggle-row"><span>Nuevos Seguidores</span><input type="checkbox" class="toggle-switch" id="ev-member"></div>
+        <div class="toggle-row"><span>Interacciones de Likes</span><input type="checkbox" class="toggle-switch" id="ev-like"></div>
+      </div>
+    </div>
+
+    <!-- TAB COLA & REGISTRO -->
+    <div id="tab-queue" class="tab-content">
+      <div class="pro-card" style="grid-column: 1 / -1;">
+        <div class="pro-card-header">
+          <div class="pro-label">Cola de Lectura Prioritaria</div>
+          <div class="pro-pill"><span id="queue-count">0</span> en espera</div>
+        </div>
+        <div style="display: flex; gap: 1rem; margin-bottom: 1.25rem;">
+          <button id="btn-skip" class="pro-btn-primary">Saltar Actual</button>
+          <button id="btn-clear" class="pro-btn-primary" style="background: rgba(239, 68, 68, 0.15); color: #ef4444; border: 1px solid #ef4444;">Vaciar Cola</button>
+        </div>
+        <div class="log-list" id="queue-log"></div>
+      </div>
+    </div>
+
+    <!-- TAB VOZ (MEJORADA PARA ESPAÑOL) -->
+    <div id="tab-voice" class="tab-content">
+      <div class="pro-card">
+        <div class="pro-card-header"><div class="pro-label">Sintetizador de Voz (Español)</div></div>
+        
+        <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Motor de Audio</label>
+        <select id="tts-engine" class="pro-select">
+          <option value="web">Web Speech API (Sistema - Nativo optimizado)</option>
+          <option value="kokoro">Kokoro-82M (WASM Neuronal Local)</option>
+        </select>
+
+        <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Seleccionar Voz en Español</label>
+        <select id="tts-voice" class="pro-select"></select>
+
+        <div class="range-container">
+          <div class="range-header">
+            <span>Velocidad de Reproducción</span>
+            <span id="rate-val" style="font-family: 'JetBrains Mono'; color: var(--primary);">1.0x</span>
+          </div>
+          <input type="range" id="tts-rate" min="0.5" max="2" step="0.1" value="1">
+        </div>
+
+        <button id="btn-test-voice" class="pro-btn-primary">Probar Voz en Español</button>
+      </div>
+
+      <div class="pro-card">
+        <div class="pro-card-header"><div class="pro-label">Plantillas de Anuncio</div></div>
+        <label style="font-size: 0.8rem; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 0.4rem;">Variables: {usuario}, {cantidad}, {regalo}</label>
+        <input type="text" id="tpl-gift" class="pro-input" value="{usuario} ha enviado {cantidad} {regalo}">
+      </div>
+    </div>
+
+    <!-- TAB FILTROS -->
+    <div id="tab-filters" class="tab-content">
+      <div class="pro-card" style="grid-column: 1 / -1;">
+        <div class="pro-card-header"><div class="pro-label">Moderación y Filtros de Spam</div></div>
+        <div class="toggle-row"><span>Ignorar Comandos de Bot (! o /)</span><input type="checkbox" class="toggle-switch" id="fl-cmds" checked></div>
+        <div class="toggle-row"><span>Filtrar y Ocultar Enlaces Web</span><input type="checkbox" class="toggle-switch" id="fl-links" checked></div>
+        <textarea id="fl-badwords" class="pro-input" placeholder="Palabras prohibidas (separadas por comas)" style="margin-top: 1rem; height: 100px;"></textarea>
+      </div>
+    </div>
+
+    <!-- TAB SONIDOS -->
+    <div id="tab-sounds" class="tab-content">
+      <div class="pro-card" style="grid-column: 1 / -1;">
+        <div class="pro-card-header">
+          <div class="pro-label">Efectos de Sonido para Regalos</div>
+          <div class="pro-pill">Alertas MP3</div>
+        </div>
+        <div class="range-container">
+          <div class="range-header">
+            <span>Volumen de Alertas de Donación</span>
+          </div>
+          <input type="range" id="sound-volume" min="0" max="1" step="0.1" value="0.8">
+        </div>
+        <div class="toggle-row"><span>Pausar lectura de Chat mientras suena la alerta</span><input type="checkbox" class="toggle-switch" id="sound-pause-tts" checked></div>
+        <div style="margin-top: 1.5rem;">
+          <input type="text" id="sound-rule" class="pro-input" placeholder="Configurar rango de monedas (Ej: Regalo > 10)">
+          <button class="pro-btn-primary" onclick="alert('Configuración guardada correctamente.')">Guardar Regla de Sonido</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <nav class="bottom-nav">
+    <button class="nav-tab active" data-target="tab-chat">Chat</button>
+    <button class="nav-tab" data-target="tab-queue">Cola</button>
+    <button class="nav-tab" data-target="tab-voice">Voz</button>
+    <button class="nav-tab" data-target="tab-filters">Filtros</button>
+    <button class="nav-tab" data-target="tab-sounds">Sonidos</button>
+  </nav>
+
+  <div id="toast">Cambios guardados</div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

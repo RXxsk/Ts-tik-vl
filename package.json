@@ -1,0 +1,66 @@
+{
+  "name": "tts-tiktok-live",
+  "version": "1.0.0",
+  "description": "TikTok Live TTS & Alertas",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "icon": "node scripts/make-icon.js",
+    "dist": "npm run icon && electron-builder --win --x64 --ia32 --publish never"
+  },
+  "dependencies": {
+    "express": "^4.22.3",
+    "tiktok-live-connector": "^2.5.0",
+    "ws": "^8.22.0"
+  },
+  "devDependencies": {
+    "electron": "22.3.27",
+    "electron-builder": "^24.13.3",
+    "png-to-ico": "^2.1.8",
+    "sharp": "^0.32.6"
+  },
+  "build": {
+    "appId": "com.ttslive.app",
+    "productName": "TikTok TTS Live",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "server/**/*",
+      "renderer/**/*",
+      "assets/**/*"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "assets/**/*"
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "artifactName": "${productName}-${version}-${arch}.${ext}"
+    }
+  }
+}
